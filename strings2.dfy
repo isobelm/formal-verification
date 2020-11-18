@@ -35,13 +35,13 @@ lemma SubstringNegationLemma(sub:string, str:string)
 
 predicate haveCommonKSubstringPred(k:nat, str1:string, str2:string)
 {
-  exists i :: (exists j :: ( i >= 0 && j >= 0 && i + k <= |str1| && j + k <= |str2|  && str1[i..i+k] == str2[j..j+k]) )
+  k <= |str1| && k <= |str2| && exists i :: (exists j :: ( i >= 0 && j >= 0 && i + k <= |str1| && j + k <= |str2|  && str1[i..i+k] == str2[j..j+k]) )
     // forall i :: (forall j :: (i < 0 || j < 0 || i + k > |str1| || j + k > |str2| || !(str1[i..i+k] == str2[j..j+k])))
 }
 
 predicate haveNotCommonKSubstringPred(k:nat, str1:string, str2:string)
 {
-    forall i :: (forall j :: (i < 0 || j < 0 || i + k > |str1| || j + k > |str2| || !(str1[i..i+k] == str2[j..j+k])))
+    k > |str1| || k > |str2| || forall i :: (forall j :: (i < 0 || j < 0 || i + k > |str1| || j + k > |str2| || !(str1[i..i+k] == str2[j..j+k])))
 }
 
 // Sanity check: Dafny should be able to automatically prove the following lemma
