@@ -19,7 +19,7 @@ method isPrefix(pre: string, str: string) returns (res:bool)
 	ensures !res <==> isNotPrefixPred(pre,str)
 	ensures  res <==> isPrefixPred(pre,str)
 {
-//TODO: insert your code here
+    return |pre| <= |str| && forall i :: 0 <= i < |pre| ==> pre[i] == str[i];
 }
 predicate isSubstringPred(sub:string, str:string)
 {
