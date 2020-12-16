@@ -38,9 +38,20 @@ lemma SubstringNegationLemma(sub:string, str:string)
 
 method isSubstring(sub: string, str: string) returns (res:bool)
 	ensures  res <==> isSubstringPred(sub, str)
-	//ensures !res <==> isNotSubstringPred(sub, str) // This postcondition follows from the above lemma.
+	ensures !res <==> isNotSubstringPred(sub, str) // This postcondition follows from the above lemma.
 {
-//TODO: insert your code here
+	var isPre : bool := isPrefix(sub, str);
+    var i : nat := 0;
+    while (i <= |str| - |sub|)
+    {
+        isPre := isPrefix(sub, str[i..]);
+		if isPre
+		{
+			return true;
+		}
+        i := i + 1;    
+    }
+	return false;
 }
 
 
