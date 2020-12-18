@@ -19,7 +19,7 @@ method isPrefix(pre: string, str: string) returns (res:bool)
 	ensures !res <==> isNotPrefixPred(pre,str)
 	ensures  res <==> isPrefixPred(pre,str)
 {
-    return |pre| <= |str| && forall i :: 0 <= i < |pre| ==> pre[i] == str[i];
+	return |pre| <= |str| && forall i :: 0 <= i < |pre| ==> pre[i] == str[i];
 }
 predicate isSubstringPred(sub:string, str:string)
 {
@@ -35,10 +35,6 @@ lemma SubstringNegationLemma(sub:string, str:string)
 	ensures  isSubstringPred(sub,str) <==> !isNotSubstringPred(sub,str)
 	ensures !isSubstringPred(sub,str) <==>  isNotSubstringPred(sub,str)
 {}
-
-function add(x : nat, y : nat): nat {
-	x + y
-}
 
 method isSubstring(sub: string, str: string) returns (res:bool)
 	ensures  res <==> isSubstringPred(sub, str)
@@ -59,8 +55,8 @@ method isSubstring(sub: string, str: string) returns (res:bool)
 		while (i <= |str|-|sub| && res == false)
 		decreases |str| - |sub| - i + (if !res then 1 else 0)
 		invariant 0 <= i <= |str|-|sub| + 1
-		invariant (forall j :: 0 <= j < i ==> isNotPrefixPred(sub, str[j..]))
 		invariant res ==> isSubstringPred(sub,str)
+		invariant forall j :: 0 <= j < i ==> isNotPrefixPred(sub, str[j..])
 		{
 			res := isPrefix(sub,str[i..]);
 			if(!res)
@@ -70,6 +66,7 @@ method isSubstring(sub: string, str: string) returns (res:bool)
 		}
 	}
 }
+
 
 
 predicate haveCommonKSubstringPred(k:nat, str1:string, str2:string)
@@ -89,9 +86,27 @@ lemma commonKSubstringLemma(k:nat, str1:string, str2:string)
 
 method haveCommonKSubstring(k: nat, str1: string, str2: string) returns (found: bool)
 	ensures found  <==>  haveCommonKSubstringPred(k,str1,str2)
-	//ensures !found <==> haveNotCommonKSubstringPred(k,str1,str2) // This postcondition follows from the above lemma.
+	ensures !found <==> haveNotCommonKSubstringPred(k,str1,str2) // This postcondition follows from the above lemma.
 {
-	//oh dear
+	if (k <= |str1| && k <= |str2|)
+	{
+		var slice : string;
+		found := false;
+		var i: nat := 0;
+
+		while (i <= |str1| - k && found == false)
+		decreases |str1| - k - i + (if !found then 1 else 0)
+		invariant found ==> haveCommonKSubstringPred(k,str1,str2)
+		invariant forall x, y :: 0 <= x < i && found == false && y == x + k && y <= |str1| ==> isNotSubstringPred(str1[x..y], str2)		
+		{
+			slice := str1[i..i+k];
+			found := isSubstring(slice, str2);
+				i := i + 1;
+		}
+	} else {
+		return false;
+	}
+     
 }
 
 method maxCommonSubstringLength(str1: string, str2: string) returns (len:nat)
@@ -99,7 +114,7 @@ method maxCommonSubstringLength(str1: string, str2: string) returns (len:nat)
 	ensures (forall k :: len < k <= |str1| ==> !haveCommonKSubstringPred(k,str1,str2))
 	ensures haveCommonKSubstringPred(len,str1,str2)
 {
-//TODO: insert your code here
+
 }
 
 
