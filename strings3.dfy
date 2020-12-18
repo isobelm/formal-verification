@@ -41,36 +41,34 @@ function add(x : nat, y : nat): nat {
 }
 
 method isSubstring(sub: string, str: string) returns (res:bool)
-	// ensures  res <==> isSubstringPred(sub, str)
+	ensures  res <==> isSubstringPred(sub, str)
 	ensures  res ==> isSubstringPred(sub, str)
 	ensures  !res ==> !isSubstringPred(sub, str)
 	ensures  isSubstringPred(sub, str) ==> res
 	ensures  isSubstringPred(sub, str) ==> res
-	// ensures !res <==> isNotSubstringPred(sub, str) // This postcondition follows from the above lemma.
+	ensures !res <==> isNotSubstringPred(sub, str) // This postcondition follows from the above lemma.
 {
-	var isPre : bool := isPrefix(sub, str);
-	var isSub : bool := false;
-    var i : nat := 0;
-    while (i < |str|)
-			invariant (isSub) ==> ((|sub| <= |str|) && exists x :: (0 <= x <= i && |sub| +  x <= |str| && sub == str[x..|sub| + x]))
-			invariant ((|sub| <= |str|) && exists x :: (0 <= x < i && |sub| + x <= |str| && sub == str[x..|sub| + x])) ==> isSub
-			invariant ((!isSub) ==> (|sub| > |str|) || forall x :: (( 0 <= x < i ==> (|sub| +  x) >= |str| || !(sub == str[x..|sub| + x]))))
-			invariant ((|sub| >= |str|) || forall x :: (( 0 <= x < i ==> (|sub| +  x >= |str| || !(sub == str[x..|sub| + x])))) ==> !isSub)
-			invariant i <= |str|;
-			decreases |str| - i;
-    {
-        isPre := isPrefix(sub, str[i..]);
-		if isPre
+	if(|str| < |sub|)
+	{
+		return false;
+	}
+	else
+	{
+		var i: nat := 0;
+	 	res := false;
+		while (i <= |str|-|sub| && res == false)
+		decreases |str| - |sub| - i + (if !res then 1 else 0)
+		invariant 0 <= i <= |str|-|sub| + 1
+		invariant (forall j :: 0 <= j < i ==> isNotPrefixPred(sub, str[j..]))
+		invariant res ==> isSubstringPred(sub,str)
 		{
-			isSub := true;
-			// break;
-			return true;
+			res := isPrefix(sub,str[i..]);
+			if(!res)
+			{
+				i := i + 1;
+			}
 		}
-        i := i + 1;    
-    }
-	// isPre := isPrefix(sub, str[i..]);
-
-	return false;
+	}
 }
 
 
@@ -93,7 +91,7 @@ method haveCommonKSubstring(k: nat, str1: string, str2: string) returns (found: 
 	ensures found  <==>  haveCommonKSubstringPred(k,str1,str2)
 	//ensures !found <==> haveNotCommonKSubstringPred(k,str1,str2) // This postcondition follows from the above lemma.
 {
-//TODO: insert your code here
+	//oh dear
 }
 
 method maxCommonSubstringLength(str1: string, str2: string) returns (len:nat)
