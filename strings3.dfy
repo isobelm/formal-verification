@@ -39,7 +39,7 @@ lemma SubstringNegationLemma(sub:string, str:string)
 method isSubstring(sub: string, str: string) returns (res:bool)
 	ensures  res <==> isSubstringPred(sub, str)
 	ensures  res ==> isSubstringPred(sub, str)
-	ensures  !res ==> !isSubstringPred(sub, str)
+	// ensures  !res ==> !isSubstringPred(sub, str)
 	ensures  isSubstringPred(sub, str) ==> res
 	ensures  isSubstringPred(sub, str) ==> res
 	ensures !res <==> isNotSubstringPred(sub, str) // This postcondition follows from the above lemma.
@@ -95,7 +95,7 @@ method haveCommonKSubstring(k: nat, str1: string, str2: string) returns (found: 
 		var i: nat := 0;
 
 		while (i <= |str1| - k && found == false)
-		decreases |str1| - k - i
+		decreases |str1| - k - i + (if !found then 1 else 0)
 		invariant found ==> haveCommonKSubstringPred(k,str1,str2)
 		invariant forall x, y :: 0 <= x < i && found == false && y == x + k && y <= |str1| ==> isNotSubstringPred(str1[x..y], str2)		
 		{
@@ -114,28 +114,20 @@ method maxCommonSubstringLength(str1: string, str2: string) returns (len:nat)
 	ensures (forall k :: len < k <= |str1| ==> !haveCommonKSubstringPred(k,str1,str2))
 	ensures haveCommonKSubstringPred(len,str1,str2)
 {
-	if (|str1| > 0)
-	{
-		var k : nat := |str1|;
-		var hasCommon : bool := true;
-		while(k > 0)
-			decreases k
-			invariant 0 <= k <= |str1| + 1
-			invariant forall i :: k < i <= |str1| ==> !haveCommonKSubstringPred(i,str1,str2)
-		{
-			hasCommon := haveCommonKSubstring(k, str1, str2);
-			if(hasCommon){
-				return k;
-			}
-			k := k - 1;
-		}
-		assert isPrefixPred(str1[|str1|..|str1|], str2[0..]);
-		len := k;
-		return len;
-	} else {
-		assert isPrefixPred(str1[0..0],str2[0..]);
-		len := 0;
-	}
-}
+	assert isPrefixPred(str1[0..0],str2[0..]);
 
+	len := |str1|;
+	var hasCommon : bool := true;
+	while(len > 0)
+		decreases len
+		invariant forall i :: len < i <= |str1| ==> !haveCommonKSubstringPred(i,str1,str2)
+	{
+		hasCommon := haveCommonKSubstring(len, str1, str2);
+		if(hasCommon){
+			return len;
+		}
+		len := len - 1;
+	}
+	return len;
+}
 
